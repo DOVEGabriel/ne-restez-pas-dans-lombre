@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin - DOVE Gabriel</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0f0a0d;color:#f0e8ea;font-family:sans-serif;font-size:15px;line-height:1.6;min-height:100vh}
+
+/* LOGIN */
+#login{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.login-box{background:#1e1320;border:1px solid rgba(232,136,154,.2);border-radius:16px;padding:40px;max-width:380px;width:100%;text-align:center}
+.login-logo{font-size:32px;margin-bottom:12px}
+.login-title{font-size:22px;font-weight:300;margin-bottom:6px;color:#f5c4cc}
+.login-sub{font-size:13px;color:#a09098;margin-bottom:28px}
+.login-box input{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(232,136,154,.2);border-radius:8px;padding:12px 16px;color:#f0e8ea;font-size:15px;font-family:sans-serif;outline:none;margin-bottom:14px;text-align:center;letter-spacing:.1em}
+.login-box input:focus{border-color:#e8889a}
+.btn-login{width:100%;background:linear-gradient(135deg,#9b3a52,#e8889a);color:#fff;border:none;padding:13px;border-radius:40px;font-size:15px;font-weight:500;cursor:pointer;font-family:sans-serif}
+.login-err{color:#e05555;font-size:13px;margin-top:10px;display:none}
+
+/* ADMIN */
+#admin{display:none;padding:20px;max-width:800px;margin:0 auto}
+.admin-header{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid rgba(232,136,154,.2);margin-bottom:24px;flex-wrap:wrap;gap:10px}
+.admin-logo{color:#f5c4cc;font-size:18px}
+.btn-logout{background:rgba(224,85,85,.15);border:1px solid rgba(224,85,85,.3);color:#f4a0a0;padding:7px 16px;border-radius:20px;font-size:13px;cursor:pointer;font-family:sans-serif}
+
+/* COMPOSE */
+.compose-box{background:#1e1320;border:1px solid rgba(232,136,154,.2);border-radius:14px;padding:22px;margin-bottom:20px}
+.compose-title{font-size:16px;font-weight:400;color:#f5c4cc;margin-bottom:16px}
+.field-label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#a09098;margin-bottom:5px;margin-top:12px;display:block}
+.field-input{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(232,136,154,.2);border-radius:8px;padding:10px 12px;color:#f0e8ea;font-size:14px;font-family:sans-serif;outline:none;-webkit-appearance:none}
+.field-input:focus{border-color:#e8889a}
+textarea.field-input{min-height:100px;resize:vertical}
+select.field-input option{background:#1a1118}
+
+.btns-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.btn-ai{background:linear-gradient(135deg,#9b3a52,#e8889a);color:#fff;border:none;padding:11px 20px;border-radius:40px;font-size:13px;font-weight:500;cursor:pointer;font-family:sans-serif}
+.btn-send{background:linear-gradient(135deg,#375623,#5bab7e);color:#fff;border:none;padding:11px 20px;border-radius:40px;font-size:13px;font-weight:500;cursor:pointer;font-family:sans-serif}
+.btn-clear{background:rgba(255,255,255,.05);border:1px solid rgba(232,136,154,.2);color:#a09098;padding:11px 20px;border-radius:40px;font-size:13px;cursor:pointer;font-family:sans-serif}
+
+/* AI RESPONSE */
+.ai-box{background:rgba(155,58,82,.08);border:1px solid rgba(232,136,154,.25);border-radius:10px;padding:14px;margin-top:14px;display:none}
+.ai-label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#e8889a;margin-bottom:8px}
+.ai-text{font-size:14px;color:#f0e8ea;line-height:1.7;white-space:pre-wrap}
+.ai-loading{color:#a09098;font-size:13px;font-style:italic}
+.btn-use{background:rgba(232,136,154,.15);border:1px solid rgba(232,136,154,.3);color:#f5c4cc;padding:7px 14px;border-radius:20px;font-size:12px;cursor:pointer;font-family:sans-serif;margin-top:10px}
+
+/* CONSEILS */
+.tips-box{background:#1e1320;border:1px solid rgba(201,169,110,.2);border-radius:14px;padding:20px}
+.tips-title{font-size:14px;color:#d4b878;margin-bottom:12px;font-weight:500}
+.tip{display:flex;gap:10px;margin-bottom:10px;font-size:13px;color:#a09098;line-height:1.6}
+.tip-icon{flex-shrink:0;color:#c9a96e}
+
+/* STATUS */
+.status-msg{font-size:13px;margin-top:10px;padding:8px 12px;border-radius:8px;display:none}
+.status-ok{background:rgba(91,171,126,.1);border:1px solid rgba(91,171,126,.2);color:#7ec8a0}
+.status-err{background:rgba(224,85,85,.1);border:1px solid rgba(224,85,85,.2);color:#f4a0a0}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login">
+  <div class="login-box">
+    <div class="login-logo">&#127800;</div>
+    <div class="login-title">Espace Admin</div>
+    <div class="login-sub">DOVE Gabriel — Acc&#232;s priv&#233;</div>
+    <input type="password" id="pwd" placeholder="Mot de passe" autocomplete="off">
+    <button class="btn-login" id="btn-login">Acc&#233;der</button>
+    <div class="login-err" id="login-err">Mot de passe incorrect.</div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="admin">
+  <div class="admin-header">
+    <div class="admin-logo">&#127800; DOVE Gabriel — Admin</div>
+    <button class="btn-logout" id="btn-logout">D&#233;connexion</button>
+  </div>
+
+  <div class="compose-box">
+    <div class="compose-title">&#9997;&#65039; R&#233;pondre &#224; un message</div>
+
+    <span class="field-label">Situation de la personne</span>
+    <select class="field-input" id="situation">
+      <option value="">S&#233;lectionner...</option>
+      <option>Harc&#232;lement moral au travail (priv&#233;)</option>
+      <option>Harc&#232;lement moral (secteur public)</option>
+      <option>Harc&#232;lement sexuel</option>
+      <option>Agression sexuelle</option>
+      <option>Harc&#232;lement scolaire</option>
+      <option>Violences conjugales</option>
+      <option>T&#233;moin d'une situation</option>
+      <option>Cherche &#224; comprendre ses droits</option>
+      <option>Autre / Non pr&#233;cis&#233;</option>
+    </select>
+
+    <span class="field-label">Message re&#231;u de la personne</span>
+    <textarea class="field-input" id="msg-recu" placeholder="Copiez ici le message que vous avez recu par email..."></textarea>
+
+    <span class="field-label">Ton souhait&#233; pour la r&#233;ponse</span>
+    <select class="field-input" id="ton">
+      <option value="bienveillant">Bienveillant et rassurant</option>
+      <option value="informatif">Informatif avec des conseils pratiques</option>
+      <option value="urgent">Urgent — personne en grande d&#233;tresse</option>
+      <option value="encourage">Encourageant — aider &#224; passer &#224; l'action</option>
+    </select>
+
+    <div class="btns-row">
+      <button class="btn-ai" id="btn-gen">&#10024; G&#233;n&#233;rer une r&#233;ponse avec l'IA</button>
+      <button class="btn-clear" id="btn-clear">Effacer</button>
+    </div>
+
+    <div class="ai-box" id="ai-box">
+      <div class="ai-label">&#127800; R&#233;ponse sugg&#233;r&#233;e par Claude</div>
+      <div class="ai-text" id="ai-text"></div>
+      <button class="btn-use" id="btn-use">Utiliser cette r&#233;ponse &darr;</button>
+    </div>
+
+    <span class="field-label" style="margin-top:18px">Votre r&#233;ponse finale (&#224; envoyer par email)</span>
+    <textarea class="field-input" id="reponse-finale" placeholder="La reponse generee apparaitra ici. Vous pouvez la modifier avant d'envoyer." style="min-height:140px"></textarea>
+
+    <span class="field-label">Email de la personne (si elle l'a fourni)</span>
+    <input type="email" class="field-input" id="email-dest" placeholder="personne@email.fr">
+
+    <div class="btns-row">
+      <button class="btn-send" id="btn-send">&#128140; Envoyer par email</button>
+    </div>
+    <div class="status-msg" id="status-msg"></div>
+  </div>
+
+  <div class="tips-box">
+    <div class="tips-title">&#128218; Conseils pour vos r&#233;ponses</div>
+    <div class="tip"><span class="tip-icon">&#9679;</span><span>Commencez toujours par valider ce que la personne ressent avant de donner des conseils.</span></div>
+    <div class="tip"><span class="tip-icon">&#9679;</span><span>Rappelez que vous n&#8217;&#234;tes pas professionnel du droit — orientez vers des sp&#233;cialistes pour les cas complexes.</span></div>
+    <div class="tip"><span class="tip-icon">&#9679;</span><span>Pour les situations d&#8217;urgence, mentionnez toujours le 3919 (gratuit, anonyme, 24h/24).</span></div>
+    <div class="tip"><span class="tip-icon">&#9679;</span><span>Une r&#233;ponse courte et chaleureuse vaut mieux qu&#8217;une longue r&#233;ponse froide.</span></div>
+    <div class="tip"><span class="tip-icon">&#9679;</span><span>Si la personne n&#8217;a pas laiss&#233; d&#8217;email, gardez sa r&#233;ponse de c&#244;t&#233; — elle reviendra peut-&#234;tre.</span></div>
+  </div>
+</div>
+
+<script>
+// ── LOGIN ──────────────────────────────────────────────────────────────────
+var PWD = 'KIWI19succes25';
+
+document.getElementById('btn-login').onclick = function() {
+  var val = document.getElementById('pwd').value;
+  if (val === PWD) {
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('admin').style.display = 'block';
+    document.getElementById('login-err').style.display = 'none';
+  } else {
+    document.getElementById('login-err').style.display = 'block';
+    document.getElementById('pwd').value = '';
+  }
+};
+
+document.getElementById('pwd').onkeydown = function(e) {
+  if (e.key === 'Enter') document.getElementById('btn-login').click();
+};
+
+document.getElementById('btn-logout').onclick = function() {
+  document.getElementById('login').style.display = 'flex';
+  document.getElementById('admin').style.display = 'none';
+  document.getElementById('pwd').value = '';
+};
+
+// ── CLEAR ──────────────────────────────────────────────────────────────────
+document.getElementById('btn-clear').onclick = function() {
+  document.getElementById('situation').value = '';
+  document.getElementById('msg-recu').value = '';
+  document.getElementById('ton').value = 'bienveillant';
+  document.getElementById('reponse-finale').value = '';
+  document.getElementById('email-dest').value = '';
+  document.getElementById('ai-box').style.display = 'none';
+  document.getElementById('ai-text').textContent = '';
+  showStatus('', '');
+};
+
+// ── UTILISER LA REPONSE IA ─────────────────────────────────────────────────
+document.getElementById('btn-use').onclick = function() {
+  var txt = document.getElementById('ai-text').textContent;
+  document.getElementById('reponse-finale').value = txt;
+  document.getElementById('reponse-finale').focus();
+};
+
+// ── GENERER AVEC CLAUDE ────────────────────────────────────────────────────
+document.getElementById('btn-gen').onclick = async function() {
+  var situation = document.getElementById('situation').value || 'Non precisee';
+  var msgRecu = document.getElementById('msg-recu').value.trim();
+  var ton = document.getElementById('ton').value;
+
+  if (!msgRecu) {
+    alert('Veuillez coller le message recu avant de generer une reponse.');
+    return;
+  }
+
+  var tonDesc = {
+    'bienveillant': 'bienveillant, chaleureux et rassurant',
+    'informatif': 'informatif avec des conseils pratiques et concrets',
+    'urgent': 'tres urgent et empathique, la personne est en grande detresse',
+    'encourage': 'encourageant, qui aide la personne a passer a l action'
+  }[ton] || 'bienveillant';
+
+  var aiBox = document.getElementById('ai-box');
+  var aiText = document.getElementById('ai-text');
+  aiBox.style.display = 'block';
+  aiText.innerHTML = '<span class="ai-loading">Claude reflechit...</span>';
+  document.getElementById('btn-gen').disabled = true;
+
+  var prompt = 'Tu es DOVE Gabriel, un citoyen engage qui aide benevole les victimes de harcelement et d agression. Tu n es pas professionnel du droit ni de la sante. Tu reponds avec sincérite et bienveillance.\n\n'
+    + 'Situation de la personne : ' + situation + '\n\n'
+    + 'Message recu :\n' + msgRecu + '\n\n'
+    + 'Redige une reponse par email en francais, ton ' + tonDesc + '. '
+    + 'Commence par valider ce que la personne ressent. '
+    + 'Rappelle que tu n es pas professionnel mais que tu es la pour aider. '
+    + 'Si c est urgent mentionne le 3919. '
+    + 'Signe "DOVE Gabriel". '
+    + 'Longueur : 150 a 250 mots maximum. Langage simple et humain.';
+
+  try {
+    var response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    var data = await response.json();
+    var txt = data.content && data.content[0] ? data.content[0].text : 'Erreur : reponse vide.';
+    aiText.textContent = txt;
+  } catch(err) {
+    aiText.textContent = 'Erreur de connexion. Verifiez votre connexion internet.';
+  }
+
+  document.getElementById('btn-gen').disabled = false;
+};
+
+// ── ENVOYER PAR EMAIL ──────────────────────────────────────────────────────
+document.getElementById('btn-send').onclick = function() {
+  var reponse = document.getElementById('reponse-finale').value.trim();
+  var emailDest = document.getElementById('email-dest').value.trim();
+  var situation = document.getElementById('situation').value || 'Message';
+
+  if (!reponse) {
+    alert('Veuillez rediger ou generer une reponse avant d envoyer.');
+    return;
+  }
+
+  if (!emailDest) {
+    alert('Veuillez entrer l email de la personne.');
+    return;
+  }
+
+  var sujet = encodeURIComponent('Re: Ne restez pas dans l'ombre — DOVE Gabriel');
+  var corps = encodeURIComponent(reponse);
+  var mailto = 'mailto:' + emailDest + '?subject=' + sujet + '&body=' + corps;
+  window.location.href = mailto;
+
+  showStatus('Email prepare dans votre application mail. Verifiez et envoyez !', 'ok');
+};
+
+function showStatus(msg, type) {
+  var el = document.getElementById('status-msg');
+  el.textContent = msg;
+  el.className = 'status-msg ' + (type === 'ok' ? 'status-ok' : type === 'err' ? 'status-err' : '');
+  el.style.display = msg ? 'block' : 'none';
+}
+</script>
+</body>
+</html>

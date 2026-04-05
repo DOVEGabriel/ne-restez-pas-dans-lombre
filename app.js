@@ -291,12 +291,21 @@ if(tabs) tabs.onclick=function(e){
 var mf=document.getElementById('mf');
 if(mf) mf.onsubmit=function(e){
   e.preventDefault();
-  var fd=new FormData(this);
-  var p=new URLSearchParams();
-  fd.forEach(function(v,k){ p.append(k,v); });
-  fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:p.toString()})
-  .then(function(){ mf.style.display='none'; document.getElementById('mc').style.display='block'; })
-  .catch(function(){ mf.style.display='none'; document.getElementById('mc').style.display='block'; });
+  var prenom = document.getElementById('f-prenom').value.trim();
+  var situation = document.getElementById('f-situation').value;
+  var message = document.getElementById('f-message').value.trim();
+  if(!message){ alert('Veuillez ecrire un message.'); return; }
+  var sujet = 'Ne restez pas dans l\'ombre - ' + (situation || 'Message');
+  var corps = '';
+  if(prenom) corps += 'De : ' + prenom + '\n\n';
+  corps += 'Situation : ' + situation + '\n\n';
+  corps += 'Message :\n' + message;
+  var mailto = 'mailto:contact.kesug@gmail.com'
+    + '?subject=' + encodeURIComponent(sujet)
+    + '&body=' + encodeURIComponent(corps);
+  window.location.href = mailto;
+  mf.style.display='none';
+  document.getElementById('mc').style.display='block';
 };
 
 // ── SORTIE RAPIDE ──────────────────────────────────────────────────────────

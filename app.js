@@ -91,6 +91,7 @@ function drawC(){
   var html='';
   for(var i=0;i<contacts.length;i++){
     var c=contacts[i];
+    if(!c.tl) continue;
     var tel=c.tl.replace(/[^0-9+]/g,'');
     if(tel.charAt(0)==='0'&&tel.length===10) tel='+33'+tel.slice(1);
     html+='<div class="cc">';
@@ -99,7 +100,8 @@ function drawC(){
     html+='<div class="cnm">'+c.nm+'</div>';
     html+='<div class="crl">'+(c.rl||'')+'</div>';
     html+='<span class="cnum">'+c.tl+'</span>';
-    html+='<button class="ccall" data-tel="'+tel+'">Appeler</button>';
+    html+='<button class="ccall" data-tel="'+tel+'">&#128222; Appeler</button>';
+    html+='<button class="cpos" data-tel="'+tel+'" data-nom="'+c.nm+'" style="display:block;width:100%;padding:8px;background:rgba(224,85,85,.15);border:1px solid rgba(224,85,85,.3);color:#f4a0a0;border-radius:20px;font-size:12px;font-weight:500;text-align:center;cursor:pointer;margin-top:6px;font-family:sans-serif">&#128205; Envoyer ma position</button>';
     html+='</div>';
   }
   grid.innerHTML=html;
@@ -117,6 +119,41 @@ function drawC(){
   for(var cc=0;cc<calls.length;cc++){
     calls[cc].onclick=function(){
       window.location.href='tel:'+this.getAttribute('data-tel');
+    };
+  }
+  var posbtns=grid.querySelectorAll('.cpos');
+  for(var pp=0;pp<posbtns.length;pp++){
+    posbtns[pp].onclick=function(){
+      var tel=this.getAttribute('data-tel');
+      var nom=this.getAttribute('data-nom');
+      if(!navigator.geolocation){
+        alert('GPS non disponible sur cet appareil.');
+        return;
+      }
+      var btn=this;
+      btn.textContent='Localisation...';
+      btn.disabled=true;
+      navigator.geolocation.getCurrentPosition(
+        function(pos){
+          var lat=pos.coords.latitude;
+          var lng=pos.coords.longitude;
+          var mapsUrl='https://maps.google.com/?q='+lat+','+lng;
+          var msg='SOS - J ai besoin d aide MAINTENANT. Ma position : '+mapsUrl+' - Appelle-moi ! ('+new Date().toLocaleTimeString('fr-FR')+')';
+          var smsUrl='sms:'+tel+'?body='+encodeURIComponent(msg);
+          window.location.href=smsUrl;
+          btn.textContent='Envoyer position';
+          btn.disabled=false;
+        },
+        function(err){
+          // Si GPS refuse, ouvrir quand meme SMS sans position
+          var msg='SOS URGENT - J ai besoin d aide MAINTENANT. Appelle-moi immediatement ! ('+new Date().toLocaleTimeString('fr-FR')+') - Envoye depuis Ne restez pas dans l ombre';
+          var smsUrl='sms:'+tel+'?body='+encodeURIComponent(msg);
+          window.location.href=smsUrl;
+          btn.textContent='Envoyer position';
+          btn.disabled=false;
+        },
+        {enableHighAccuracy:true,timeout:8000,maximumAge:0}
+      );
     };
   }
 }
